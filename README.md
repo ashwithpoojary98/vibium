@@ -1,6 +1,17 @@
 # Vibium Java Client
 
-Browser automation for AI agents and humans.
+A modern Java browser automation library using WebDriver BiDi protocol with Playwright-like auto-wait capabilities.
+
+This is the official Java client for [Vibium](https://github.com/VibiumDev/vibium) - browser automation without the drama.
+
+## Features
+
+- **Zero Configuration** - Automatic browser and driver downloads
+- **Sync & Async APIs** - Choose between blocking and non-blocking operations
+- **Auto-Wait** - Built-in polling before element interaction
+- **WebDriver BiDi** - Standards-based protocol, no proprietary hacks
+- **Cross-Platform** - Windows, macOS (Intel & Apple Silicon), Linux
+- **Automatic Cleanup** - Processes are cleaned up on JVM shutdown
 
 ## Installation
 
@@ -8,153 +19,177 @@ Browser automation for AI agents and humans.
 
 ```xml
 <dependency>
-    <groupId>io.github.ashwith</groupId>
-    <artifactId>Vibium</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>io.github.ashwithpoojary98</groupId>
+    <artifactId>vibium</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.ashwith:Vibium:1.0-SNAPSHOT'
-```
-
-### Clicker Binary
-
-The clicker binary is required for browser automation. Install it manually:
-
-**Option 1: Environment Variable**
-```bash
-# Download from https://github.com/AshwithJoymo/clicker/releases
-export VIBIUM_CLICKER_PATH=/path/to/clicker
-```
-
-**Option 2: Add to PATH**
-```bash
-# Place clicker binary in a directory on your PATH
-mv clicker /usr/local/bin/
-```
-
-**Option 3: Cache Directory**
-Place the binary in the platform-specific cache directory:
-- **Windows:** `%LOCALAPPDATA%\vibium\clicker.exe`
-- **macOS:** `~/Library/Caches/vibium/clicker`
-- **Linux:** `~/.cache/vibium/clicker`
-
-### Chrome for Testing
-
-Chrome downloads automatically on first use. To install ahead of time:
-
-```bash
-java -jar vibium.jar install
+implementation 'io.github.ashwithpoojary98:vibium:1.0.0'
 ```
 
 ## Quick Start
 
-```java
-import io.github.ashwithpoojary98.*;
-
-public class Example {
-    public static void main(String[] args) throws Exception {
-        VibeSync vibe = BrowserSync.launch();
-        vibe.go("https://example.com");
-
-        // Take a screenshot
-        byte[] png = vibe.screenshot();
-        java.nio.file.Files.write(
-            java.nio.file.Path.of("screenshot.png"), png
-        );
-
-        // Find and click a link
-        ElementSync link = vibe.find("a");
-        System.out.println(link.text());
-        link.click();
-
-        vibe.quit();
-    }
-}
-```
-
-## Async API
+### Synchronous API
 
 ```java
-import io.github.ashwithpoojary98.*;
+import io.github.ashwithpoojary98.vibium.Browser;
+import io.github.ashwithpoojary98.vibium.Vibe;
+import io.github.ashwithpoojary98.vibium.Element;
 
-public class AsyncExample {
-    public static void main(String[] args) {
-        Browser.launch()
-            .thenCompose(vibe ->
-                vibe.go("https://example.com")
-                    .thenCompose(v -> vibe.find("a"))
-                    .thenCompose(link -> link.click())
-                    .thenRun(vibe::close)
-            )
-            .join();
-    }
-}
+// Launch browser
+Vibe vibe = new Browser().launch();
+
+// Navigate to a page
+vibe.go("https://example.com");
+
+// Find and interact with elements
+Element heading = vibe.find("h1");
+System.out.println(heading.getText());
+
+Element link = vibe.find("a");
+link.click();
+
+// Take screenshot
+byte[] screenshot = vibe.screenshot();
+Files.write(Path.of("screenshot.png"), screenshot);
+
+// Close browser
+vibe.quit();
 ```
 
-Or with try-with-resources:
+### Asynchronous API
 
 ```java
-try (Vibe vibe = Browser.launch().join()) {
-    vibe.go("https://example.com").join();
+import io.github.ashwithpoojary98.vibium.BrowserAsync;
+import io.github.ashwithpoojary98.vibium.VibeAsync;
+import io.github.ashwithpoojary98.vibium.ElementAsync;
 
-    Element link = vibe.find("a").join();
-    link.click().join();
-}
+// Launch browser asynchronously
+BrowserAsync browser = new BrowserAsync();
+VibeAsync vibe = browser.launch().join();
+
+// Navigate
+vibe.go("https://example.com").join();
+
+// Find element with CompletableFuture
+vibe.find("h1")
+    .thenAccept(el -> System.out.println(el.getText()))
+    .join();
+
+// Close
+vibe.quit();
 ```
 
-## CLI
+### Launch Options
 
-```bash
-java -jar vibium.jar install   # Download Chrome for Testing
-java -jar vibium.jar version   # Show version
+```java
+import io.github.ashwithpoojary98.vibium.options.LaunchOptions;
+
+LaunchOptions options = LaunchOptions.builder()
+    .headless(true)           // Run in headless mode
+    .port(9515)               // Custom port
+    .executablePath("/path/to/clicker")  // Custom clicker binary
+    .build();
+
+Vibe vibe = new Browser().launch(options);
+```
+
+### Connect to Existing Browser
+
+```java
+// Connect to a browser already running on a specific WebSocket URL
+Vibe vibe = new Browser().connect("ws://localhost:9515");
 ```
 
 ## API Reference
 
-### BrowserSync / Browser
+### Browser / BrowserAsync
 
 | Method | Description |
 |--------|-------------|
-| `launch()` | Launch browser with default settings |
-| `launch(headless)` | Launch browser in headless mode |
-| `launch(headless, port)` | Launch with specific WebSocket port |
-| `launch(headless, port, executablePath)` | Launch with custom clicker binary |
+| `launch()` | Launch browser with default options |
+| `launch(LaunchOptions)` | Launch browser with custom options |
+| `connect(String wsUrl)` | Connect to existing browser |
 
-### VibeSync / Vibe
+### Vibe / VibeAsync
 
 | Method | Description |
 |--------|-------------|
-| `go(url)` | Navigate to a URL |
-| `screenshot()` | Capture viewport as PNG bytes |
-| `find(selector)` | Find element by CSS selector |
-| `find(selector, timeout)` | Find element with custom timeout |
-| `isConnected()` | Check if browser is connected |
-| `quit()` / `close()` | Close browser and cleanup |
+| `go(String url)` | Navigate to URL |
+| `find(String selector)` | Find element by CSS selector |
+| `find(String selector, Duration timeout)` | Find element with custom timeout |
+| `screenshot()` | Capture viewport screenshot as PNG bytes |
+| `evaluate(String script, Class<T>)` | Execute JavaScript and return result |
+| `quit()` | Close browser and cleanup |
 
-### ElementSync / Element
+### Element / ElementAsync
 
 | Method | Description |
 |--------|-------------|
 | `click()` | Click the element |
-| `type(text)` | Type text into element |
-| `clear()` | Clear element value |
-| `fill(text)` | Clear and type text |
-| `text()` | Get text content |
-| `getAttribute(name)` | Get attribute value |
+| `type(String text)` | Type text into the element |
+| `clear()` | Clear input field |
+| `getText()` | Get element text content |
+| `getTagName()` | Get element tag name |
+| `getBox()` | Get element bounding box |
 | `isVisible()` | Check if element is visible |
-| `isEnabled()` | Check if element is enabled |
-| `hover()` | Hover over element |
-| `focus()` | Focus the element |
-| `scrollIntoView()` | Scroll element into view |
+
+## CLI
+
+```bash
+java -jar vibium-1.0.0-cli.jar install   # Download Chrome for Testing
+java -jar vibium-1.0.0-cli.jar version   # Show version
+```
 
 ## Requirements
 
-- Java 21+
+- Java 11 or higher
+- No external browser installation required (auto-downloaded)
+
+## Platform Support
+
+| Platform | Architecture | Status |
+|----------|--------------|--------|
+| Windows  | x64          | Supported |
+| macOS    | x64 (Intel)  | Supported |
+| macOS    | arm64 (M1/M2)| Supported |
+| Linux    | x64          | Supported |
+| Linux    | arm64        | Supported |
+
+## How It Works
+
+Vibium Java client communicates with the [Clicker](https://github.com/VibiumDev/vibium) binary via WebSocket using the WebDriver BiDi protocol. The clicker binary:
+
+1. Automatically downloads Chrome for Testing if not present
+2. Manages browser lifecycle (launch, connect, close)
+3. Provides BiDi protocol proxy on port 9515
+
+The clicker binary is bundled with the JAR and automatically extracted to the platform cache directory on first run:
+- **Windows**: `%LOCALAPPDATA%\vibium`
+- **macOS**: `~/Library/Caches/vibium`
+- **Linux**: `~/.cache/vibium`
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Quick Links
+
+- [Report a Bug](https://github.com/ashwithpoojary98/vibium/issues/new?labels=bug)
+- [Request a Feature](https://github.com/ashwithpoojary98/vibium/issues/new?labels=enhancement)
+- [Open Issues](https://github.com/ashwithpoojary98/vibium/issues)
+- [Pull Requests](https://github.com/ashwithpoojary98/vibium/pulls)
+
+## Related Projects
+
+- [Vibium](https://github.com/VibiumDev/vibium) - Main project (Go binary + JS/Python clients)
+- [vibium (npm)](https://www.npmjs.com/package/vibium) - JavaScript/TypeScript client
+- [vibium (PyPI)](https://pypi.org/project/vibium/) - Python client
 
 ## License
 
-Apache-2.0
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
