@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/ashwithpoojary98/vibium/discussions
+    about: Ask questions or start a discussion
+  - name: Vibium Main Project
+    url: https://github.com/VibiumDev/vibium
+    about: Issues related to the core Vibium project (Go binary, JS/Python clients)
