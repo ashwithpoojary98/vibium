@@ -5,6 +5,7 @@ import io.github.ashwithpoojary98.vibium.Element;
 import io.github.ashwithpoojary98.vibium.Vibe;
 import io.github.ashwithpoojary98.vibium.options.LaunchOptions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -42,9 +43,9 @@ class VibiumTest {
 
             // Take screenshot
             byte[] screenshot = vibe.screenshot();
-            String filePath = System.getProperty("user.dir") + "/screenshot.png";
+            String filePath = System.getProperty("user.dir") + "/target/screenshot.png";
             Files.write(new File(filePath).toPath(), screenshot);
-            System.out.println("Screenshot saved to: " + filePath);
+            Assertions.assertTrue(Files.exists(new File(filePath).toPath()));
         } finally {
             if (vibe != null) {
                 vibe.quit();
