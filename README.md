@@ -21,7 +21,7 @@ This is the official Java client for [Vibium](https://github.com/VibiumDev/vibiu
 <dependency>
     <groupId>io.github.ashwithpoojary98</groupId>
     <artifactId>vibium</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 

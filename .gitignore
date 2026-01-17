@@ -65,3 +65,4 @@ replay_pid*
 .idea
 .mvn
 nul
+dependency-reduced-pom.xml
