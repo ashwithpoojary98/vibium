@@ -28,7 +28,7 @@ This is the official Java client for [Vibium](https://github.com/VibiumDev/vibiu
 ### Gradle
 
 ```groovy
-implementation 'io.github.ashwithpoojary98:vibium:1.0.0'
+implementation 'io.github.ashwithpoojary98:vibium:1.0.1'
 ```
 
 ## Quick Start
@@ -141,8 +141,8 @@ Vibe vibe = new Browser().connect("ws://localhost:9515");
 ## CLI
 
 ```bash
-java -jar vibium-1.0.0-cli.jar install   # Download Chrome for Testing
-java -jar vibium-1.0.0-cli.jar version   # Show version
+java -jar vibium-1.0.1-cli.jar install   # Download Chrome for Testing
+java -jar vibium-1.0.1-cli.jar version   # Show version
 ```
 
 ## Requirements
