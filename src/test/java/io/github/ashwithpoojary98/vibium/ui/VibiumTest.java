@@ -21,27 +21,18 @@ import java.nio.file.Files;
 class VibiumTest {
 
     private Vibe vibe;
-
     @Test
     void browserLaunchTest() throws IOException {
         LaunchOptions options = LaunchOptions.builder()
                 .headless(false)
                 .build();
-
         try {
-            // Sync API - no .join() needed!
             vibe = new Browser().launch(options);
             vibe.go("https://asynccodinghub.in/");
-
-            // Test CSS selector
             Element h1 = vibe.find("h1");
             System.out.println("Found element: " + h1.getText());
-
-            // Test finding link element
             Element link = vibe.find("a");
             System.out.println("Found link with text: " + link.getText());
-
-            // Take screenshot
             byte[] screenshot = vibe.screenshot();
             String filePath = System.getProperty("user.dir") + "/target/screenshot.png";
             Files.write(new File(filePath).toPath(), screenshot);
